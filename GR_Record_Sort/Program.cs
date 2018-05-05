@@ -19,49 +19,117 @@ namespace GR_Record_Sort
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            recordTable = new DataTable(); 
+            recordTable = new DataTable();
+            recordTable.Columns.Add("Last Name", typeof(string));
+            recordTable.Columns.Add("First Name", typeof(string));
+            recordTable.Columns.Add("Gender", typeof(string));
+            recordTable.Columns.Add("Favorite color", typeof(string));
+            recordTable.Columns.Add("Date Of Birth", typeof(string));
+            List<string> fileNameList = new List<string>();
+
             if (args == null || args.Length == 0)
             {
                 Console.WriteLine("Please specify a filename as a parameter.");
                 return;
             }
-            Console.WriteLine("args[0] = " + args[0]);
-            string fileOne = args[0].ToString();
-            //Added below code for debugging purpose. The command line argument sent from 
-            //debug prepended a ?. This had to be removed first.
-            fileOne = fileOne.Remove(0, 1);
-            Console.WriteLine("fileOne = " + fileOne);
-            string[] fileContents = File.ReadAllLines(fileOne); 
-            foreach(string line in fileContents)
+
+            foreach(string file in args)
             {
-                string[] splitOnDelimeter = Regex.Split(line, @"\|");
-                foreach(string result in splitOnDelimeter)
-                {
-                    Console.Write(result);
-                }
+                //Added below code for debugging purpose. The command line argument sent from 
+                //debug prepended a ?. This had to be removed first.
+               string fileToSend = file;
+               fileToSend = Regex.Replace(file, @"\?", string.Empty);
+               fileNameList.Add(fileToSend);
             }
-            // Safely create and dispose of a DataTable
-            //using (DataTable table = new DataTable())
-            //{
-            //    // Two columns.
-            //    table.Columns.Add("Last Name", typeof(string));
-            //    table.Columns.Add("First Name", typeof(string));
-            //    table.Columns.Add("Gender", typeof(string));
-            //    table.Columns.Add("Favorite color", typeof(string));
-            //    table.Columns.Add("Date Of Birth", typeof(DateTime));
-            //    // ... Add two rows.
-            //    table.Rows.Add("cat", DateTime.Now);
-            //    table.Rows.Add("dog", DateTime.Today);
 
-            //    // ... Display first field.
-            //    Console.WriteLine(table.Rows[0].Field<string>(0));
-            //}
-            //Console.WriteLine(fileContents);
-
-
+            ReadFileContents(fileNameList);
+           
+            Console.WriteLine("Contents of datatable: ");
+            DisplayDataTableContents(recordTable);
             Console.Read();
 
         }
-         
+        /// <summary>
+        /// Method is used to read in each line of a list of files.
+        /// Then the send the content array to the SplitFileContents
+        /// method. This method doesn't return a value.
+        /// </summary>
+        /// <param name="files"></param>
+        private static void ReadFileContents(List<string> files)
+        {
+    
+            foreach (string file in files)
+            {
+                try
+                {
+                    string[] fileContentsArray = File.ReadAllLines(file);
+                    SplitFileContents(fileContentsArray);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message + Environment.NewLine + file);
+                }
+            }     
+        }
+        /// <summary>
+        /// This method seperates the contents of each line based on the delimeter used. 
+        /// Then calls the PopulateDataTable method to add the corresponding data.
+        /// This method does not return a value.
+        /// </summary>
+        /// <param name="contentToSplit"></param>
+        private static void SplitFileContents(string[] contentToSplit)
+        {
+            foreach (string line in contentToSplit)
+            {
+                string[] splitOnDelimeterArray = Regex.Split(line, @"\||,|\s");
+                PopulateDataTable(recordTable, splitOnDelimeterArray);
+            }
+        }
+        /// <summary>
+        /// This method is used to populate a datatable with the contents
+        /// of a line in a given file. The methad takes in a datatable and
+        /// a string arrray of the fields in the line of text. The method
+        /// does not return anything.
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="field"></param>
+         private static void PopulateDataTable(DataTable table, string[] field)
+        {
+            List<string> rowData = new List<string>();
+            foreach (string result in field)
+            {
+                rowData.Add(result);
+            }
+            try
+            {
+                string lastName = rowData.ElementAtOrDefault(0);
+                string firstName = rowData.ElementAtOrDefault(1);
+                string gender = rowData.ElementAtOrDefault(2);
+                string favoritColor = rowData.ElementAtOrDefault(3);
+                string dateOfBirth= rowData.ElementAtOrDefault(4);
+                table.Rows.Add(lastName, firstName, gender, favoritColor, dateOfBirth);
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+        }
+        /// <summary>
+        /// Method is used to display to the console the contents of the 
+        /// datatable. The method takes in a datatable as a parameter and has
+        /// no return value.
+        /// </summary>
+        /// <param name="table"></param>
+        private static void DisplayDataTableContents(DataTable table)
+        {
+            foreach (DataRow dataRow in recordTable.Rows)
+            {
+                Console.WriteLine();
+                foreach (var field in dataRow.ItemArray)
+                {
+                    Console.Write(field + "    ");
+                }
+            }
+        }
     }
 }

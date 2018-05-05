@@ -144,25 +144,14 @@ namespace GR_Record_Sort
         /// <param name="table"></param>
         private static void DisplayOutput_1(DataTable table)
         {
-            DataView view = table.DefaultView;
-            Console.WriteLine("=== Sorted by weight ===");
-            for (int i = 0; i < view.Count; i++)
-            {
-                Console.WriteLine("{0}, {1}, {2}, {3}, {4}",
-                    view[i][0],
-                    view[i][1],
-                    view[i][2],
-                    view[i][3],
-                    view[i][4]);
-            }
-            view.Sort = "Gender, Last Name DESC";
+            
             // view.Sort = "Last Name DESC";
             var newDataTable = table.AsEnumerable()
                     .OrderBy(r => r.Field<string>("Gender"))
                     .ThenBy(r => r.Field<string>("Last Name"))
                     .CopyToDataTable();
           
-            view = newDataTable.DefaultView;
+           DataView view = newDataTable.DefaultView;
             Console.WriteLine(Environment.NewLine + "=== Sorted by Gender then Last Name===");
             for (int i = 0; i < view.Count; i++)
             {

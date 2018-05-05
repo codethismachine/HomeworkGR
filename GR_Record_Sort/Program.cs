@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace GR_Record_Sort
 {
+   
     class Program
     {
         private static DataTable recordTable;
@@ -25,6 +26,7 @@ namespace GR_Record_Sort
             recordTable.Columns.Add("Gender", typeof(string));
             recordTable.Columns.Add("Favorite color", typeof(string));
             recordTable.Columns.Add("Date Of Birth", typeof(string));
+            recordTable.Columns.Add("DOB For Sorting", typeof(DateTime));
             List<string> fileNameList = new List<string>();
 
             if (args == null || args.Length == 0)
@@ -44,8 +46,9 @@ namespace GR_Record_Sort
 
             ReadFileContents(fileNameList);
            
-            Console.WriteLine("Contents of datatable: ");
-            DisplayDataTableContents(recordTable);
+            DisplayOutput_1(recordTable);
+            DisplayOutput_2(recordTable);
+            DisplayOutput_3(recordTable);
             Console.Read();
 
         }
@@ -106,8 +109,9 @@ namespace GR_Record_Sort
                 string firstName = rowData.ElementAtOrDefault(1);
                 string gender = rowData.ElementAtOrDefault(2);
                 string favoritColor = rowData.ElementAtOrDefault(3);
-                string dateOfBirth= rowData.ElementAtOrDefault(4);
-                table.Rows.Add(lastName, firstName, gender, favoritColor, dateOfBirth);
+                string dateOfBirthString = rowData.ElementAtOrDefault(4);
+                DateTime dateOfBirth= DateTime.Parse(rowData.ElementAtOrDefault(4));
+                table.Rows.Add(lastName, firstName, gender, favoritColor, dateOfBirthString, dateOfBirth);
             }catch(Exception e)
             {
                 Console.WriteLine(e.Message);
@@ -129,6 +133,88 @@ namespace GR_Record_Sort
                 {
                     Console.Write(field + "    ");
                 }
+            }
+        }
+        /// <summary>
+        /// This method is used to display the data sorted 
+        /// by gender then last name ascending. 
+        /// First the data is sorted by gender then by last name.
+        /// The method has no return value.
+        /// </summary>
+        /// <param name="table"></param>
+        private static void DisplayOutput_1(DataTable table)
+        {
+            DataView view = table.DefaultView;
+            Console.WriteLine("=== Sorted by weight ===");
+            for (int i = 0; i < view.Count; i++)
+            {
+                Console.WriteLine("{0}, {1}, {2}, {3}, {4}",
+                    view[i][0],
+                    view[i][1],
+                    view[i][2],
+                    view[i][3],
+                    view[i][4]);
+            }
+            view.Sort = "Gender, Last Name DESC"; 
+           // view.Sort = "Last Name DESC";
+
+            Console.WriteLine(Environment.NewLine + "=== Sorted by Gender then Last Name===");
+            for (int i = 0; i < view.Count; i++)
+            {
+                Console.WriteLine("{0}, {1}, {2}, {3}, {4}",
+                    view[i][0],
+                    view[i][1],
+                    view[i][2],
+                    view[i][3],
+                    view[i][4]);
+            }
+        }
+        /// <summary>
+        /// This method is used to display the data 
+        /// sorted by birth date ascending. 
+        /// First the data is sorted by gender then by last name.
+        /// The method has no return value.
+        /// </summary>
+        /// <param name="table"></param>
+        private static void DisplayOutput_2(DataTable table)
+        {
+            DataView view = table.DefaultView;
+            
+            view.Sort = "DOB For Sorting ASC";
+
+            Console.WriteLine(Environment.NewLine + "=== Sorted by Date Of Birth===");
+            for (int i = 0; i < view.Count; i++)
+            {
+                Console.WriteLine("{0}, {1}, {2}, {3}, {4}",
+                    view[i][0],
+                    view[i][1],
+                    view[i][2],
+                    view[i][3],
+                    view[i][4]);
+            }
+        }
+        /// <summary>
+        /// This method is used to display the data 
+        /// sorted by last name descending. 
+        /// First the data is sorted by gender then by last name.
+        /// The method has no return value.
+        /// </summary>
+        /// <param name="table"></param>
+        private static void DisplayOutput_3(DataTable table)
+        {
+            DataView view = table.DefaultView;
+
+            view.Sort = "Last Name";
+
+            Console.WriteLine(Environment.NewLine + "=== Sorted by Last Name===");
+            for (int i = 0; i < view.Count; i++)
+            {
+                Console.WriteLine("{0}, {1}, {2}, {3}, {4}",
+                    view[i][0],
+                    view[i][1],
+                    view[i][2],
+                    view[i][3],
+                    view[i][4]);
             }
         }
     }

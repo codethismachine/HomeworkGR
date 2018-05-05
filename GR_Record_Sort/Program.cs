@@ -111,7 +111,7 @@ namespace GR_Record_Sort
                 string favoritColor = rowData.ElementAtOrDefault(3);
                 string dateOfBirthString = rowData.ElementAtOrDefault(4);
                 DateTime dateOfBirth= DateTime.Parse(rowData.ElementAtOrDefault(4));
-                table.Rows.Add(lastName, firstName, gender, favoritColor, dateOfBirthString, dateOfBirth);
+                table.Rows.Add(lastName.ToUpper(), firstName.ToUpper(), gender.ToUpper(), favoritColor.ToUpper(), dateOfBirthString, dateOfBirth);
             }catch(Exception e)
             {
                 Console.WriteLine(e.Message);
@@ -155,9 +155,14 @@ namespace GR_Record_Sort
                     view[i][3],
                     view[i][4]);
             }
-            view.Sort = "Gender, Last Name DESC"; 
-           // view.Sort = "Last Name DESC";
-
+            view.Sort = "Gender, Last Name DESC";
+            // view.Sort = "Last Name DESC";
+            var newDataTable = table.AsEnumerable()
+                    .OrderBy(r => r.Field<string>("Gender"))
+                    .ThenBy(r => r.Field<string>("Last Name"))
+                    .CopyToDataTable();
+          
+            view = newDataTable.DefaultView;
             Console.WriteLine(Environment.NewLine + "=== Sorted by Gender then Last Name===");
             for (int i = 0; i < view.Count; i++)
             {
@@ -168,6 +173,7 @@ namespace GR_Record_Sort
                     view[i][3],
                     view[i][4]);
             }
+            view.Dispose();
         }
         /// <summary>
         /// This method is used to display the data 
@@ -180,7 +186,7 @@ namespace GR_Record_Sort
         {
             DataView view = table.DefaultView;
             
-            view.Sort = "DOB For Sorting ASC";
+            view.Sort = "DOB For Sorting";
 
             Console.WriteLine(Environment.NewLine + "=== Sorted by Date Of Birth===");
             for (int i = 0; i < view.Count; i++)
@@ -204,7 +210,7 @@ namespace GR_Record_Sort
         {
             DataView view = table.DefaultView;
 
-            view.Sort = "Last Name";
+            view.Sort = "Last Name DESC";
 
             Console.WriteLine(Environment.NewLine + "=== Sorted by Last Name===");
             for (int i = 0; i < view.Count; i++)

@@ -15,30 +15,67 @@ using Newtonsoft.Json.Linq;
 
 namespace GR_Record_Sort_API.Controllers
 {
+    [RoutePrefix("api/GR_Record_Sort/records")]
     public class GR_Record_SortController : ApiController
     {
+        //Added file path to the web.config file to be adjusted dynamically
+        private string dataPath = WebConfigurationManager.AppSettings["DataFilePath"];
+        Program test = new Program();
         // GET: api/GR_Record_Sort
-        public IEnumerable<string> Get()
+        [HttpGet]
+        [Route("{sortBy}")]
+        public JObject GetBySort(string sortBy)
         {
-            return new string[] { "value1", "value2" };
+            string one = test.Main(sortBy);
+            JObject jsonObject = new JObject();
+            try
+            {
+                jsonObject = JObject.Parse(one);
+            }
+            catch (Exception e)
+            {
+                jsonObject = null;
+            }
+            return jsonObject;
         }
-
-        // GET: api/GR_Record_Sort/5
         public string Get(int id)
         {
-            return "value";
+            return "" + id;
         }
-
-        // POST: api/GR_Record_Sort
-        public void Post([FromBody]string value)
+        //POST: api/GR_Record_Sort
+        public void Post(HttpRequestMessage incomingRequest)
         {
+            var content = incomingRequest.Content;
+            string jsonContent = content.ReadAsStringAsync().Result;
+            AddContentToDataFile(jsonContent);
         }
-
+        /// <summary>
+        /// Method returns an List of strings after parsing the
+        /// incoming json.
+        /// </summary>
+        /// <param name="jsonContent"></param>
+        /// <returns></returns>
+        private void AddContentToDataFile(string jsonContent)
+        {
+            string dataString = "";
+            JsonTextReader reader = new JsonTextReader(new StringReader(jsonContent));
+            while (reader.Read())
+            {
+                if (reader.Value != null && reader.Value.ToString() != "info")
+                {
+                    //Console.WriteLine("Token: {0}, Value: {1}", reader.TokenType, reader.Value);
+                    dataString = reader.Value.ToString();
+                }
+            }
+            using (StreamWriter dataWriter = File.AppendText(dataPath))
+            {
+                dataWriter.WriteLine("\r" + dataString);
+            }
+        }
         // PUT: api/GR_Record_Sort/5
         public void Put(int id, [FromBody]string value)
         {
         }
-
         // DELETE: api/GR_Record_Sort/5
         public void Delete(int id)
         {
@@ -89,8 +126,6 @@ namespace GR_Record_Sort_API.Controllers
                 return output;
             }
             return "Output Empty!";
-            //DisplayOutput_2(recordTable);
-            //DisplayOutput_3(recordTable);
         }
         /// <summary>
         /// Method is used to read in each line of a list of files.
